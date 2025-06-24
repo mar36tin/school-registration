@@ -17,8 +17,11 @@ class RegistrationService(db: DBImplementation) {
 
       isClassFull(classroomId) match
         case Failure(exception) => throw exception
-        case Success(fullClassroom) if fullClassroom => throw new ClassroomFullException
-        case Success(fullClassroom) => Enrolment(studentId, classroomId)
+        case Success(true) => throw new ClassroomFullException
+        case Success(false) =>
+          val enrolment = Enrolment(studentId, classroomId)
+          db.enrol(enrolment)
+          enrolment
     }
   }
 
@@ -31,5 +34,10 @@ class RegistrationService(db: DBImplementation) {
   }
 
   def getStudent(studentId: String): Option[Student] = db.getStudent(studentId)
+
+  val errorHandler: PartialFunction[Throwable, String] =
+    case _: ClassroomFullException => "class is full"
+    case _: NoStudentException => "Student does not exist"
+    case _: NoClassroomException => "Classroom does not exist"
 
 }
