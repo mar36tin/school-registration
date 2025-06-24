@@ -9,4 +9,5 @@ trait UtilityDatabase {
 
     def getStudent(id: String): Option[Student]
     def getClassroom(id: String): Option[Classroom]
+    def getEnrolments(): List[Enrolment]
 }
